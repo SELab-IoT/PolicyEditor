@@ -1,0 +1,38 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" PolicyId="father" Version="1.0" RuleCombiningAlgId="urn:oasis:names:tc:xacml:3.0:rule-combining-algorithm:permit-unless-deny">
+<Target>
+<AnyOf>
+<AllOf>
+<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Father</AttributeValue><AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" DataType="http://www.w3.org/2001/XMLSchema#string" Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject" MustBePresent="true"/>
+</Match>
+</AllOf>
+<AllOf>
+<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">car</AttributeValue><AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#string" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource" MustBePresent="true"/>
+</Match>
+</AllOf>
+<AllOf>
+<Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">open</AttributeValue><AttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action" MustBePresent="true"/>
+</Match>
+</AllOf>
+</AnyOf>
+</Target>
+<Rule RuleId="time" Effect="Permit"  >
+<Condition>
+<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-greater-than">
+<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#time">15:00:00+09:00</AttributeValue><Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+<AttributeDesignator AttributeId="current_time" DataType="http://www.w3.org/2001/XMLSchema#time" Category="time" MustBePresent="false"/>
+</Apply>
+</Apply>
+<Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-less-than">
+<AttributeValue DataType="http://www.w3.org/2001/XMLSchema#time">20:00:00+09:00</AttributeValue><Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:time-one-and-only">
+<AttributeDesignator AttributeId="current_time" DataType="http://www.w3.org/2001/XMLSchema#time" Category="time" MustBePresent="false"/>
+</Apply>
+</Apply>
+</Apply>
+</Condition>
+</Rule>
+</Policy>
+

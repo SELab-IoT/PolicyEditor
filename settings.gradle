@@ -1,0 +1,3 @@
+rootProject.name = 'xacml-iot-editor'
+include 'server'
+include 'client'

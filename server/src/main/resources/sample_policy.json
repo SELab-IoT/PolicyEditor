@@ -1,0 +1,44 @@
+{
+	"name": "policy1",
+
+	"combineAlg": "permit-unless-deny",
+
+	"target":
+        {
+            "subject": [
+                "father"
+            ],
+            "resource": [
+                "fridge"
+            ],
+            "action": [
+                "open"
+            ]
+        },
+
+    "rules":
+            [
+                {
+                    "name": "rule1",
+                    "effect": true,
+                    "condition": {
+                        "apply": {
+                            "function": "greater",
+                            "type": "time",
+                            "value": "15:00"
+                        }
+                    }
+                },
+                {
+                    "name": "rule2",
+                    "effect": true,
+                    "condition": {
+                        "apply": {
+                            "function": "less",
+                            "type": "time",
+                            "value": "20:00"
+                        }
+                    }
+                }
+            ]
+}
