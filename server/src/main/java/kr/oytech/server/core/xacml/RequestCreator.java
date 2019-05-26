@@ -1,8 +1,10 @@
 package kr.oytech.server.core.xacml;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import freemarker.core.CustomAttribute;
 import org.springframework.stereotype.Component;
 import org.wso2.balana.XACMLConstants;
+import org.wso2.balana.attr.IntegerAttribute;
 import org.wso2.balana.attr.StringAttribute;
 import org.wso2.balana.attr.TimeAttribute;
 import org.wso2.balana.ctx.Attribute;
@@ -51,18 +53,23 @@ public class RequestCreator {
                     JsonNode valueNode = entry.getValue();
                     String type = valueNode.get("type").asText();
                     String value = valueNode.get("value").asText();
+                    Attribute customAttribute = null;
                     switch (type) {
                         case "time":
                             SimpleDateFormat format = new SimpleDateFormat("hh:mm");
-                            Attribute customAttribute = new Attribute(new URI(key), null, null, new TimeAttribute(format.parse(value)), XACMLConstants.XACML_VERSION_3_0);
+                            customAttribute = new Attribute(new URI(key), null, null, new TimeAttribute(format.parse(value)), XACMLConstants.XACML_VERSION_3_0);
                             attributesHashSet.add(new Attributes(new URI(type), Set.of(customAttribute)));
                             break;
                         case "integer":
+                            customAttribute = new Attribute(new URI(key), null, null, new IntegerAttribute(Integer.parseInt(value)), XACMLConstants.XACML_VERSION_3_0);
+                            attributesHashSet.add(new Attributes(new URI(type),Set.of(customAttribute)));
                         case "string":
+                            customAttribute = new Attribute(new URI(key), null, null, new StringAttribute(value), XACMLConstants.XACML_VERSION_3_0);
+                            attributesHashSet.add(new Attributes(new URI(type),Set.of(customAttribute)));
+                            break;
                     }
             }
         }
-        System.out.println(attributesHashSet.toString());
 
         RequestCtx requestCtx = new RequestCtx(null, attributesHashSet, true, true, null, null);
         return requestCtx;

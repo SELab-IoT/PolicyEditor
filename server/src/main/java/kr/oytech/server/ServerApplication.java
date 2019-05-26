@@ -1,5 +1,6 @@
 package kr.oytech.server;
 
+import kr.oytech.server.handler.PolicyTestHandler;
 import kr.oytech.server.handler.XACMLConvertHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,8 +15,9 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 public class ServerApplication {
 
     @Bean
-    public RouterFunction<ServerResponse> routes(XACMLConvertHandler xacmlConvertHandler) {
+    public RouterFunction<ServerResponse> routes(XACMLConvertHandler xacmlConvertHandler, PolicyTestHandler policyTestHandler) {
         return route()
+                .POST("/policy/test", policyTestHandler::testPolicy)
                 .POST("/convert", xacmlConvertHandler::parseXACML)
                 .POST("/request", xacmlConvertHandler::parseRequest)
                 .POST("/check", xacmlConvertHandler::findMatchPolicy)

@@ -5,15 +5,10 @@ import CombineAlgTable from './CombineAlgTable'
 
 class CombineAlg extends React.Component {
     constructor(props) {
-        console.log(props)
+        console.debug(props)
         super(props)
-
-        let defaultAlg = 'permit-unless-deny';
-        if (this.props.selected != null && this.props.selected.combineAlg != undefined) {
-            defaultAlg = selected.combineAlg
-        }
         this.state = {
-            alg: defaultAlg
+            alg: 'permit-unless-deny'
         }
 
         this.onChange = this.onChange.bind(this)
@@ -44,28 +39,25 @@ class CombineAlg extends React.Component {
     }
 
     render() {
-        const graph = this.props.graph;
-        const selected = this.props.selected;
         const onChange = this.props.onChange;
+        const {graph, selected, graphView} = this.props;
 
         if (selected != null && selected.type === POLICY_TYPE) {
 
             return (
-                <div className="d-inline ml-3">
+                <div className="mb-3">
                     <span>Combine Alg: </span>
                     <select
+                        className="custom-select-sm"
                         name="combine-algorithm"
-                        defaultValue={this.state.alg}
-                        onChange={event => this.onChange(event, onChange)}
+                        defaultValue={this.props.selected.combineAlg}
+                        onChange={event => onChange(graph, selected, event, graphView)}
                     >
                         <option value={'permit-unless-deny'}>PermitUnlessDeny</option>
                         <option value={'deny-unless-permit'}>DenyUnlessPermit</option>
                         <option value={'permit-overrides'}>PermitOverrides</option>
                         <option value={'deny-overrides'}>DenyOverrides</option>
                     </select>
-                    <Popup trigger={<button className="ml-2">Info</button>} position="bottom center" contentStyle={{width: "500px"}}>
-                        <CombineAlgTable alg={this.state.alg} data={this.getRules(selected, graph)}/>
-                    </Popup>
                 </div>
             )
         } else {

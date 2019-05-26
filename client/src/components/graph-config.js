@@ -70,14 +70,14 @@ const ActionShape = (
 );
 
 const RuleShape = (
-    <symbol viewBox="0 0 154 54" width="154" height="54" id="rule">
-        <rect x="0" y="0" rx="2" ry="2" width="154" height="54"/>
+    <symbol viewBox="0 0 154 80" width="154" height="80" id="rule">
+        <rect x="0" y="0" rx="2" ry="2" width="154" height="80"/>
     </symbol>
 );
 
 const ConditionShape = (
-    <symbol viewBox="0 0 80 80" width="80" height="80" id="condition">
-        <circle cx="40" cy="40" r="40"/>
+    <symbol viewBox="0 0 89 80" width="88" height="80" id="condition">
+        <path d="M 44 0 2 34 22 80 66 80 86 34 44 0Z"></path>
     </symbol>
 );
 

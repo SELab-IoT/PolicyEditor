@@ -31,12 +31,12 @@ public class TargetCreator {
             JsonNode a = targetJson.get("action");
 
             List<AllOfSelection> allOfSelections = new LinkedList<>();
-
-            buildAllOfSelection(s, allOfSelections);
-
-            buildAllOfSelection(r, allOfSelections, TargetMatch.SUBJECT, "urn:oasis:names:tc:xacml:1.0:resource:resource-id", "urn:oasis:names:tc:xacml:3.0:attribute-category:resource");
-
-            buildAllOfSelection(a, allOfSelections, TargetMatch.SUBJECT, "urn:oasis:names:tc:xacml:1.0:action:action-id", "urn:oasis:names:tc:xacml:3.0:attribute-category:action");
+            if (s != null)
+                buildAllOfSelection(s, allOfSelections);
+            if (r != null)
+                buildAllOfSelection(r, allOfSelections, TargetMatch.SUBJECT, "urn:oasis:names:tc:xacml:1.0:resource:resource-id", "urn:oasis:names:tc:xacml:3.0:attribute-category:resource");
+            if (a != null)
+                buildAllOfSelection(a, allOfSelections, TargetMatch.SUBJECT, "urn:oasis:names:tc:xacml:1.0:action:action-id", "urn:oasis:names:tc:xacml:3.0:attribute-category:action");
 
             anyOfSelectionList.add(new AnyOfSelection(allOfSelections));
         }

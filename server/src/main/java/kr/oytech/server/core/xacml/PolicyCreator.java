@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.stereotype.Component;
 import org.wso2.balana.Policy;
 import org.wso2.balana.Rule;
-import org.wso2.balana.combine.CombiningAlgFactory;
 import org.wso2.balana.combine.RuleCombiningAlgorithm;
 import org.wso2.balana.combine.xacml3.DenyUnlessPermitRuleAlg;
 import org.wso2.balana.combine.xacml3.PermitOverridesRuleAlg;
@@ -93,6 +92,12 @@ public class PolicyCreator {
                     ruleCombiningAlgorithm = new PermitUnlessDenyRuleAlg();
                     break;
                 case "deny-unless-permit":
+                    ruleCombiningAlgorithm = new DenyUnlessPermitRuleAlg();
+                    break;
+                case "permit-overrides":
+                    ruleCombiningAlgorithm = new PermitOverridesRuleAlg();
+                    break;
+                case "deny-overrides":
                     ruleCombiningAlgorithm = new DenyUnlessPermitRuleAlg();
                     break;
                 default:

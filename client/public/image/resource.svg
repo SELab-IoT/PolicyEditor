@@ -1,0 +1,4 @@
+<svg viewBox="0 0 80 80" width="80" height="80" id="resource">
+    <circle fill="white" stroke="dodgerblue" cx="40" cy="40" r="40"/>
+    <text x="10" y="45" font-size="16">Resource</text>
+</svg>

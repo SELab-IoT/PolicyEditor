@@ -1,0 +1,82 @@
+.right-sidebar {
+  width: 400px;
+  height: 100%;
+  right: 0;
+  text-align: center;
+  position: fixed;
+  transition: transform ease-out 0.2s;
+  transform-origin: right;
+  transform: scaleX(0);
+  background: whitesmoke;
+  overflow: hidden;
+
+  &.rule {
+    width: 500px;
+  }
+}
+
+.right-sidebar .show {
+  transform: scaleX(2);
+}
+
+.right-sidebar .collapsed {
+  transform: scaleX(0);
+}
+
+.value-editor-content {
+  width: 100%;
+  height: 100%;
+  top: 20%;
+  text-align: center;
+  position: fixed;
+}
+
+.node {
+  height: 400px;
+  background-size: 400px 400px;
+
+  &.policy {
+    background-image: url('../../public/image/policy.png');
+  }
+
+  &.rule {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url("../../public/image/rule.png");
+  }
+
+  &.condition {
+    background-image: url("../../public/image/condition.png");
+  }
+
+  &.value {
+    background-image: url("../../public/image/value.png");
+  }
+
+  &.target {
+    background-image: url("../../public/image/target.png");
+  }
+
+  &.subject {
+    background-image: url("../../public/image/subject.png");
+  }
+
+  &.resource {
+    background-image: url("../../public/image/resource.png");
+  }
+
+  &.action {
+    background-image: url("../../public/image/action.png");
+  }
+
+  &.input {
+    background-image: url("../../public/image/input.png");
+  }
+
+}
+
+.info-button {
+  width: 25px;
+  height: 25px;
+  border: none;
+}

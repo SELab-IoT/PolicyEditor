@@ -10,6 +10,8 @@ import org.wso2.balana.attr.TimeAttribute;
 import org.wso2.balana.attr.xacml3.AttributeDesignator;
 import org.wso2.balana.cond.*;
 import org.wso2.balana.ctx.xacml2.Result;
+import org.wso2.balana.ctx.xacml2.Subject;
+import org.wso2.balana.xacml3.Target;
 
 import java.io.IOException;
 import java.net.URI;
@@ -104,8 +106,8 @@ public class RuleCreator {
         JsonNode applyNode = r.get("apply");
         Expression expression = parseApply(applyNode);
         Condition condition = new Condition(expression);
-
-        return new Rule(new URI(ruleName), effect, null, null, condition, null, null, XACMLConstants.XACML_VERSION_3_0);
+        Target target = new Target();
+        return new Rule(new URI(ruleName), effect, null, target, condition, null, null, XACMLConstants.XACML_VERSION_3_0);
 
     }
 
@@ -129,12 +131,15 @@ public class RuleCreator {
                 switch (valueType) {
                     case "integer":
                         function = new EqualFunction(EqualFunction.NAME_INTEGER_EQUAL);
-                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs);
+                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs, false);
                         break;
                     case "string":
                         function = new EqualFunction(EqualFunction.NAME_STRING_EQUAL);
-                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs);
+                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs, false);
                         break;
+                    case "time":
+                        function = new EqualFunction(EqualFunction.NAME_TIME_EQUAL);
+                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs, false);
                 }
                 break;
             case "greater":
@@ -142,7 +147,11 @@ public class RuleCreator {
                 switch (valueType) {
                     case "time":
                         function = new ComparisonFunction(ComparisonFunction.NAME_TIME_GREATER_THAN);
-                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs);
+                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs, true);
+                        break;
+                    case "integer":
+                        function = new ComparisonFunction(ComparisonFunction.NAME_INTEGER_GREATER_THAN);
+                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs, true);
                         break;
                     default:
                         function = new ComparisonFunction(ComparisonFunction.NAME_INTEGER_GREATER_THAN);
@@ -154,7 +163,11 @@ public class RuleCreator {
                 switch (valueType) {
                     case "time":
                         function = new ComparisonFunction(ComparisonFunction.NAME_TIME_LESS_THAN);
-                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs);
+                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs, true);
+                        break;
+                    case "integer":
+                        function = new ComparisonFunction(ComparisonFunction.NAME_INTEGER_LESS_THAN);
+                        parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs, true);
                         break;
                     default:
                         function = new ComparisonFunction(ComparisonFunction.NAME_INTEGER_LESS_THAN);
@@ -164,40 +177,73 @@ public class RuleCreator {
             default:
                 inputId = r.get("inputId").asText();
                 function = new EqualFunction(EqualFunction.NAME_STRING_EQUAL);
-                parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs);
+                parseFunctionParameter(inputId, valueType, valueNode.asText(), xprs, false);
                 break;
         }
-
         Expression expression = new Apply(function, xprs);
         return expression;
     }
 
-    private void parseFunctionParameter(String id, String valueType, String value, List<Expression> xprs) throws ParseException, URISyntaxException {
+    private void parseFunctionParameter(String id, String valueType, String value, List<Expression> xprs, boolean reversed) throws ParseException, URISyntaxException {
+        URI category = null;
+        if (id.equals("subject")) {
+            id = "urn:oasis:names:tc:xacml:1.0:subject:subject-id";
+            category = Subject.DEFAULT_CATEGORY;
+        }
         switch (valueType) {
             case "time":
                 SimpleDateFormat format = new SimpleDateFormat("hh:mm");
-                xprs.add(new TimeAttribute(format.parse(value)));
-                xprs.add(
-                        new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
-                                List.of(new AttributeDesignator(new URI(TimeAttribute.identifier), new URI(id), false, new URI("time")))
-                        )
-                );
+                if (!reversed) {
+                    xprs.add(new TimeAttribute(format.parse(value)));
+                    xprs.add(
+                            new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
+                                    List.of(new AttributeDesignator(new URI(TimeAttribute.identifier), new URI(id), false, category == null? new URI("time"): category))
+                            )
+                    );
+                } else {
+                    xprs.add(
+                            new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
+                                    List.of(new AttributeDesignator(new URI(TimeAttribute.identifier), new URI(id), false, category == null? new URI("time"): category))
+                            )
+                    );
+                    xprs.add(new TimeAttribute(format.parse(value)));
+                }
+
                 break;
             case "string":
-                xprs.add(new StringAttribute(value));
-                xprs.add(
-                        new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
-                                List.of(new AttributeDesignator(new URI(StringAttribute.identifier), new URI(id), false, new URI("string")))
-                        )
-                );
+                if (!reversed) {
+                    xprs.add(new StringAttribute(value));
+                    xprs.add(
+                            new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
+                                    List.of(new AttributeDesignator(new URI(StringAttribute.identifier), new URI(id), false, category == null? new URI("string"): category))
+                            )
+                    );
+                } else {
+                    xprs.add(
+                            new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
+                                    List.of(new AttributeDesignator(new URI(StringAttribute.identifier), new URI(id), false, category == null? new URI("string"): category))
+                            )
+                    );
+                    xprs.add(new StringAttribute(value));
+                }
                 break;
             case "integer":
-                xprs.add(new IntegerAttribute(Integer.parseInt(value)));
-                xprs.add(
-                        new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
-                                List.of(new AttributeDesignator(new URI(IntegerAttribute.identifier), new URI(id), false, new URI("integer")))
-                        )
-                );
+                if (!reversed) {
+                    xprs.add(new IntegerAttribute(Integer.parseInt(value)));
+                    xprs.add(
+                            new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
+                                    List.of(new AttributeDesignator(new URI(IntegerAttribute.identifier), new URI(id), false, category == null? new URI("integer"): category))
+                            )
+                    );
+                } else {
+                    xprs.add(
+                            new Apply(new GeneralBagFunction(FunctionBase.FUNCTION_NS + valueType + BagFunction.NAME_BASE_ONE_AND_ONLY),
+                                    List.of(new AttributeDesignator(new URI(IntegerAttribute.identifier), new URI(id), false, category == null? new URI("integer"): category))
+                            )
+                    );
+                    xprs.add(new IntegerAttribute(Integer.parseInt(value)));
+                }
+                break;
         }
 
     }

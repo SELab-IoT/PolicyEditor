@@ -1,5 +1,8 @@
 import {combineReducers} from 'redux';
-import chat from './drag';
-import oauth from './oauth';
+import node from "./node";
+import sidebar from "./sidebar";
+import editor from "./editor";
+import rightSidebar from "./rightSidebar";
+import request from './request';
 
-export default combineReducers({chat, oauth});
+export default combineReducers({node, sidebar, editor, rightSidebar, request});

@@ -1,116 +1,183 @@
 import * as React from 'react';
+import '../../public/css/sidebar.css'
+import {connect} from "react-redux";
+import _ from "lodash";
+import {bindActionCreators} from "redux";
+import {onTestRequest} from "../editor-actions";
 
-const sidebarClass = {
-    CLOSED: 'closed',
-    OPEN: 'open'
-};
+import minimizeIcon from '../../public/image/minimize.svg'
+import maximizeIcon from '../../public/image/maximize.svg'
+import deleteIcon from '../../public/image/delete.svg'
+import Parse from "html-react-parser";
+import RequestResult from "./RequestResult";
 
-const directionOpposites = {
-    down: 'up',
-    left: 'right',
-    right: 'left',
-    up: 'down'
-};
-
-const defaultProps = {
-    direction: 'left',
-    size: '130px'
-};
-
-export default class Sidebar extends React.Component {
+class Sidebar extends React.Component {
 
 
     constructor(props) {
         super(props);
         this.state = {
-            direction: 'left',
-            size: '130px',
-            sidebarClass: sidebarClass.OPEN,
+            newId: '',
+            newIds: {},
+            requests: {'request1': {'subject': 'Father'}},
+            newRequestName: '',
+            isCollapsed: []
         };
+
+
+        this.updateNewId = this.updateNewId.bind(this);
+        this.addNewInput = this.addNewInput.bind(this);
     }
 
-    toggleContainer() {
-        const originalValue = this.state.sidebarClass;
-        let newValue = sidebarClass.CLOSED;
-        if (originalValue === newValue) {
-            newValue = sidebarClass.OPEN;
-        }
-        this.setState({
-            sidebarClass: newValue,
-        });
+    updateNewRequestName = (event) => {
+        const newRequestName = event.target.value;
+        this.setState({newRequestName})
+    };
+
+    addNewRequest = () => {
+        const requests = this.state.requests;
+        requests[this.state.newRequestName] = {};
+        this.setState({requests})
+    };
+
+    addNewInput(id) {
+        const newId = this.state.newIds[id];
+        const requests = this.state.requests[id]
+        requests[newId] = {}
+        this.setState(requests)
     }
 
-    classNames(...args) {
-        let className = '';
-        for (const arg of args) {
-            if (typeof arg === 'string' || typeof arg === 'number') {
-                className += ` ${arg}`;
-            } else if (typeof arg === 'object' && !Array.isArray(arg) && arg !== null) {
-                Object.keys(arg).forEach((key) => {
-                    if (Boolean(arg[key])) {
-                        className += ` ${key}`;
-                    }
-                });
-            } else if (Array.isArray(arg)) {
-                className += ` ${arg.join(' ')}`;
-            }
-        }
-
-        return className.trim();
+    updateNewId(id, event) {
+        const newIds = this.state.newIds;
+        newIds[id] = event.target.value;
+        this.setState({newIds})
     }
 
-    getContainerClasses() {
-        const classes = ['sidebar-main-container'];
-        classes.push(this.state.sidebarClass || '');
-        return this.classNames(classes);
+
+    updateInput(key, requestKey, event) {
+        const requests = this.state.requests;
+        requests[key][requestKey] = event.target.value;
+        this.setState({requests});
     }
 
-    getContainerStyle(size, direction) {
-        if (direction === 'up' || direction === 'down') {
-            return {height: `${size}`, maxHeight: `${size}`};
-        }
-        return {width: `${size}`, maxWidth: `${size}`};
+    deleteRequestKey(key, requestKey) {
+        const requests = this.state.requests
+        delete requests[key][requestKey];
+        this.setState({requests})
     }
 
-    getArrowIconClasses(direction) {
-        const classes = ['icon'];
-        if (this.state.sidebarClass === sidebarClass.CLOSED) {
-            classes.push(`icon_${directionOpposites[direction]}-arrow`);
+    loadClassName() {
+        const isShow = this.props.sidebar.isShow ? 'show' : 'collapsed';
+        return 'sidebar ' + isShow;
+    }
+
+    minimize = (key) => {
+        const isCollapsed = this.state.isCollapsed;
+        if (isCollapsed.includes(key)) {
+            const i = isCollapsed.indexOf(key)
+            isCollapsed.splice(i, 1)
         } else {
-            classes.push(`icon_${direction}-arrow`);
+            isCollapsed.push(key)
         }
-        return this.classNames(classes);
+        this.setState({isCollapsed})
+    };
+
+    loadRequestClassName(origin, key) {
+        const isCollapsed = this.state.isCollapsed;
+        if (isCollapsed.includes(key)) {
+            return origin + " request-collapsed"
+        } else {
+            return origin + " request-show"
+        }
     }
 
-    renderToggleBar(direction) {
+    loadImage(icon) {
+        const parsedIcon = Parse(icon); //  parse SVG once
+        const Icon = () => parsedIcon; // convert SVG to react component
+        return Icon
+    }
+
+    loadToggleImage(key) {
+        const isCollapsed = this.state.isCollapsed;
+        if (isCollapsed.includes(key)) {
+            return this.loadImage(maximizeIcon)()
+        } else {
+            return this.loadImage(minimizeIcon)()
+        }
+    }
+
+    makeRequestInput(key) {
+        const requests = this.state.requests;
+        const requestKeys = Object.keys(requests[key]);
         return (
-            <div
-                className="sidebar-toggle-bar"
-                onClick={this.toggleContainer}
-            >
-                <i className={this.getArrowIconClasses(direction)} />
+            <div className="request">
+                <button className="btn-light minimize" onClick={event => this.minimize(key)}>
+                    {this.loadToggleImage(key)}
+                </button>
+                <section>
+                    <h3 className="request-header">Request: {key}</h3>
+                    <ul className={this.loadRequestClassName("request-list", key)}>
+                        {_.map(requestKeys, requestKey => {
+                            return (
+                                <li className="request-column">
+                                    <span>{requestKey}</span>
+                                    <input name={requestKey}
+                                           onChange={event => this.updateInput(key, requestKey, event)}/>
+                                    <button onClick={event => this.deleteRequestKey(key, requestKey)}
+                                            className="btn-light request-delete">
+                                        {this.loadImage(deleteIcon)()}
+                                    </button>
+                                </li>
+                            )
+                        })}
+                    </ul>
+                </section>
+                <div className={this.loadRequestClassName('request-attribute-add', key)}>
+                    <span>new Id: </span>
+                    <input name="add" value={this.state.newIds[key]}
+                           onChange={event => this.updateNewId(key, event)}/>
+                    <button className="btn-light" onClick={event => this.addNewInput(key)}>+</button>
+                </div>
             </div>
-        );
+        )
+
     }
 
     render() {
-        const {children, direction, size} = this.props;
-        const sidebarClassName = this.classNames('sidebar', direction);
+        const requests = this.state.requests;
+        const keys = Object.keys(requests);
+
         return (
-            <div className={sidebarClassName}>
-                <div
-                    className={this.getContainerClasses()}
-                    style={this.getContainerStyle(size, direction)}
-                >
-                    {children}
+            <div className={this.loadClassName()}>
+                {_.map(keys, key => {
+                    return this.makeRequestInput(key)
+
+                })}
+                <div>
+                    <div className="request-add">
+                        <span>Name: </span>
+                        <input name="add" value={this.state.newRequestName} onChange={this.updateNewRequestName}/>
+                        <button className="btn-light" onClick={this.addNewRequest}>+</button>
+
+                    </div>
+                    <div className="request-test">
+                        <button
+                            className="btn-light"
+                            onClick={event => this.props.onTestRequest(this.props.editor.graph, this.state.requests)}>Test
+                            Request
+                        </button>
+                    </div>
                 </div>
-                <div
-                    className="sidebar-toggle-bar"
-                    onClick={this.toggleContainer}
-                >
-                    <i className={this.getArrowIconClasses(direction)} />
-                </div>
+                <RequestResult />
             </div>
         );
     }
+
+
 }
+
+function mapStateToProps(state) {
+    return {sidebar: state.sidebar, editor: state.editor}
+}
+
+export default connect(mapStateToProps, d => bindActionCreators({onTestRequest}, d))(Sidebar);

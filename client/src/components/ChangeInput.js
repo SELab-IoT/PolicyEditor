@@ -1,4 +1,8 @@
 import React from 'react';
+import {connect} from "react-redux";
+import {bindActionCreators} from "redux";
+import {onChangeText, onRuleFunctionChange} from "../editor-actions";
+import GraphView from "../diagraph";
 
 
 export const INPUT = 0;
@@ -20,61 +24,36 @@ class ChangeInput extends React.Component {
     }
 
     handleTitleChange(event) {
-        console.log(event.target.value)
         this.setState(
             {
-                nodeTitle: event.target.value || "value"
+                nodeTitle: event.target.value || ""
             }
         );
     }
 
     onChangeText(event) {
-        console.log(event.target.value)
-        this.props.onChangeText(event.target.value);
+        const {graph, selected} = this.props;
+        this.props.onChangeText(graph, selected, event.target.value);
     }
 
     render() {
-        const type = this.props.type;
-        const value = this.props.default;
-        console.log(value)
-        if (type === INPUT) {
-            return (
-                <div className="d-inline">
-                    <input
-                        type="text"
-                        onBlur={this.handleTitleChange}
-                        placeholder={this.state.nodeTitle}
-                    />
-                    <button onClick={event => this.props.onChangeText(this.state.nodeTitle)}>Change Text</button>
-                </div>
-            )
-        } else if (type === CONDITION_FUNCTION) {
-            console.log(value)
-            return (
-                <div className="d-inline">
-                    <select
-                        name="condition-function"
-                        defaultValue={value}
-                        onChange={event => this.onChangeText(event)}
-                    >
-                        <option value={'equal'}>equal</option>
-                        <option value={'greater'}>greater</option>
-                        <option value={'less'}>less</option>
-                    </select>
-                </div>
-            )
-        } else if (type === RULE_FUNCTION) {
-            return <div className="d-inline">
-                <span>Function: </span>
-                <span> AND </span>
-                <input type="radio" name="function" checked={value === 'and'} value="and"
-                       onChange={event => this.props.onRuleFunctionChange(event.target.value)}/>
-                <span> OR </span>
-                <input type="radio" name="function" checked={value === 'or'} value="or"
-                       onChange={event => this.props.onRuleFunctionChange(event.target.value)}/>
+        const {nodeType, nodeValue, graph, selected, GraphView} = this.props
+        return (
+            <div>
+                <input
+                    className="react-bs-table-bordered"
+                    type="text"
+                    onBlur={this.handleTitleChange}
+                    placeholder={this.state.nodeTitle}
+                />
+                <button
+                    className="btn-light"
+                    onClick={event => this.props.onChangeText(graph, selected, this.state.nodeTitle, GraphView)}>Change
+                    Text
+                </button>
             </div>
-        }
+        )
     }
 }
 
-export default ChangeInput;
+export default connect(s => s.editor, d => bindActionCreators({onRuleFunctionChange, onChangeText}, d))(ChangeInput);

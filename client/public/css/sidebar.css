@@ -1,0 +1,116 @@
+.sidebar {
+    width: 300px;
+    height: 100%;
+    position: fixed;
+    transition: transform ease-out 0.2s;
+    transform-origin: left;
+    transform: scaleX(0);
+    background: white;
+    overflow: hidden;
+}
+
+.show {
+    transform: scaleX(1);
+}
+
+.collapsed {
+    transform: scaleX(0);
+}
+
+.btn {
+    background-color: white;
+    stroke: dodgerblue;
+    fill: white;
+    margin-left: 3px;
+    stroke-width: 2px;
+    text-align: center;
+    border: solid 1px lightgray;
+}
+
+.input {
+    vertical-align: middle;
+}
+
+.request-column {
+    display: grid;
+    grid-template-columns: 100px 150px 40px;
+    list-style: none;
+    margin-bottom: 5px;
+}
+.request-list {
+    padding-left: 0px;
+}
+
+.request {
+    overflow: hidden;
+    padding: 5px;
+    border: 2px dashed lightgray;
+    margin-bottom: 5px;
+    margin-top: 2px;
+}
+
+.minimize {
+    fill: dodgerblue;
+    width: 30px;
+    height: 30px;
+    float: right;
+}
+
+.request-header {
+    font-size: 20px;
+}
+
+.request-show {
+    transition: height ease 0.2s;
+    transform-origin: top;
+    height: auto;
+}
+
+.request-delete svg{
+    width: 10px;
+}
+
+.request-add {
+    display: grid;
+    grid-template-columns: 100px 150px 40px;
+}
+
+.request-attribute-add {
+    display: grid;
+    grid-template-columns: 100px 150px 40px;
+    border-top: 1px dashed lightgray;
+    padding-top: 5px;
+}
+
+.request-collapsed {
+    transition: height ease 0.2s;
+    transform-origin: top;
+    display:none;
+    height: 0!important;
+}
+
+.request-test {
+    margin-top: 10px;
+}
+
+.result-panel {
+    overflow: hidden;
+    padding: 5px;
+    border: 2px dashed lightgray;
+    margin-bottom: 5px;
+}
+
+.result-column {
+    display: grid;
+    grid-template-columns: 150px 150px;
+    list-style: none;
+    margin-bottom: 5px;
+}
+
+.result-list {
+    padding-left: 0px;
+}
+
+.result {
+    margin-top: 20px;
+}
